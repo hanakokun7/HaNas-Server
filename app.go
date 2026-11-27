@@ -78,10 +78,15 @@ func main() {
 	})
 	if acfg.Https_f {
 		go func() {
-			fmt.Printf("%s server started at :8443\n", "HaNas")
-			http.ListenAndServeTLS(":8443", acfg.Cert, acfg.Key, nil)
+			http.ListenAndServe(":80", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				target := "https://" + r.Host + r.URL.RequestURI()
+				http.Redirect(w, r, target, http.StatusPermanentRedirect)
+			}))
 		}()
+		fmt.Printf("%s server started at :443\n", "HaNas")
+		http.ListenAndServeTLS(":443", acfg.Cert, acfg.Key, nil)
+	} else {
+		fmt.Printf("%s server started at :80\n", "HaNas")
+		http.ListenAndServe(":80", nil)
 	}
-	fmt.Printf("%s server started at :80\n", "HaNas")
-	http.ListenAndServe(":80", nil)
 }

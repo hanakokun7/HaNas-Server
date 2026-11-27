@@ -882,7 +882,8 @@ func get_trash_info(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "trash item not found", http.StatusNotFound)
 		return
 	}
-	var n Node = t.getNode()
+	var n Node
+	db.First(&n, "id = ?", t.Nid)
 	tif := struct {
 		Nid       uint      `json:"id"`
 		Name      string    `json:"name"`
@@ -902,7 +903,7 @@ func get_trash_info(w http.ResponseWriter, r *http.Request) {
 			tif.Size = s.Size()
 		}
 	}
-	tif.Path = return_path(n, userID) + n.Name
+	tif.Path = return_path(n, userID)
 	data, err := json.Marshal(tif)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

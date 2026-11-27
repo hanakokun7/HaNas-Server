@@ -88,26 +88,12 @@ type Trash struct {
 	DeletedAt time.Time `gorm:"autoUpdateTime" json:"deleted_at"`
 }
 
-func (t Trash) getNode() Node {
-	var tmp Node
-	db.First(&tmp, "id = ?", t.Nid)
-	return tmp
-}
-
 func (t Trash) restore() {
 	var tmp Node
 	db.First(&tmp, "id = ?", t.Nid)
 	tmp.Del_f = false
 	r := db.Save(&tmp)
 	if r.Error == nil {
-		db.Delete(&t)
-	}
-}
-
-func (t Trash) delete() {
-	var tmp Node
-	db.First(&tmp, "id = ?", t.Nid)
-	if DeleteNodeRecursive(tmp.ID, tmp.UserID) == nil {
 		db.Delete(&t)
 	}
 }

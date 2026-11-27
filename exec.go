@@ -397,7 +397,7 @@ func gomikago_akeru() {
 		ct := time.Now()
 		for i := 0; i < l; i++ {
 			if (ct.Sub(tmp[i].DeletedAt)) > 30*24*time.Hour {
-				tmp[i].delete()
+				DeleteNodeRecursive(tmp[i].Nid, tmp[i].UserID)
 			}
 		}
 	}

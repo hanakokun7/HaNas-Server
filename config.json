@@ -1,0 +1,11 @@
+{
+  "BACKEND_URL": "http://127.0.0.1:80",
+  "db_type": "sqlite",
+  "dbFile": "./database.db",
+  "db_url": "",
+  "dataDir": "./data",
+  "thumbDir": "./thumbnails",
+  "https_f": false,
+  "cert": "",
+  "key": ""
+}

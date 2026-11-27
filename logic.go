@@ -77,7 +77,7 @@ func GetJson(w http.ResponseWriter, r *http.Request) {
 	}
 	node.Path = return_path(node, userID)
 	if node.Fid != nil {
-		p := fmt.Sprintf("%s/%d", dataDir, *node.Fid)
+		p := fmt.Sprintf("%s/%d", acfg.DataDir, *node.Fid)
 		if st, err := os.Stat(p); err == nil {
 			node.Size = st.Size()
 		}
@@ -98,7 +98,7 @@ func GetJson(w http.ResponseWriter, r *http.Request) {
 	}
 	for i := range node.Ko {
 		if node.Ko[i].Fid != nil {
-			p := fmt.Sprintf("%s/%d", dataDir, *node.Ko[i].Fid)
+			p := fmt.Sprintf("%s/%d", acfg.DataDir, *node.Ko[i].Fid)
 			if st, err := os.Stat(p); err == nil {
 				node.Ko[i].Size = st.Size()
 			}
@@ -128,7 +128,7 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "file not found", http.StatusNotFound)
 		return
 	}
-	p := fmt.Sprintf("%s/%d", dataDir, *node.Fid)
+	p := fmt.Sprintf("%s/%d", acfg.DataDir, *node.Fid)
 	f, err := os.Open(p)
 	if err != nil {
 		http.Error(w, "failed to open file", http.StatusInternalServerError)
@@ -170,13 +170,13 @@ func GetThumbnail(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "file not found", http.StatusNotFound)
 		return
 	}
-	p := fmt.Sprintf("%s/%d", dataDir, *node.Fid)
+	p := fmt.Sprintf("%s/%d", acfg.DataDir, *node.Fid)
 	fmt.Printf("Thumbnail request for %s (node_id=%d, fid=%d)\n", node.Name, id, *node.Fid)
-	if err := os.MkdirAll(thumbDir, 0755); err != nil {
+	if err := os.MkdirAll(acfg.ThumbDir, 0755); err != nil {
 		http.Error(w, "failed to create thumbnail directory", http.StatusInternalServerError)
 		return
 	}
-	thumbPath := fmt.Sprintf("%s/%d.jpg", thumbDir, *node.Fid)
+	thumbPath := fmt.Sprintf("%s/%d.jpg", acfg.ThumbDir, *node.Fid)
 	if thumbFile, err := os.Open(thumbPath); err == nil {
 		defer thumbFile.Close()
 		if thumbInfo, err := thumbFile.Stat(); err == nil {
@@ -748,7 +748,7 @@ func GetSharedFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not a file", http.StatusBadRequest)
 		return
 	}
-	p := fmt.Sprintf("%s/%d", dataDir, *node.Fid)
+	p := fmt.Sprintf("%s/%d", acfg.DataDir, *node.Fid)
 	f, err := os.Open(p)
 	if err != nil {
 		http.Error(w, "failed to open file", http.StatusInternalServerError)
@@ -827,9 +827,9 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	db.Where("user_id = ?", userID).Find(&nodes)
 	for _, n := range nodes {
 		if n.Fid != nil {
-			p := fmt.Sprintf("%s/%d", dataDir, *n.Fid)
+			p := fmt.Sprintf("%s/%d", acfg.DataDir, *n.Fid)
 			_ = os.Remove(p)
-			thumbPath := fmt.Sprintf("%s/%d.jpg", thumbDir, *n.Fid)
+			thumbPath := fmt.Sprintf("%s/%d.jpg", acfg.ThumbDir, *n.Fid)
 			_ = os.Remove(thumbPath)
 		}
 	}
@@ -899,7 +899,7 @@ func get_trash_info(w http.ResponseWriter, r *http.Request) {
 	if n.IsDir {
 		tif.Size = calculateDirSize(n.ID, userID)
 	} else {
-		if s, err := os.Stat(fmt.Sprintf("%s/%d", dataDir, *n.Fid)); err == nil {
+		if s, err := os.Stat(fmt.Sprintf("%s/%d", acfg.DataDir, *n.Fid)); err == nil {
 			tif.Size = s.Size()
 		}
 	}

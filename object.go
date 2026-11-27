@@ -77,7 +77,7 @@ func (n Node) return_file() []byte {
 	if n.Fid == nil {
 		return nil
 	}
-	p := dataDir + "/" + fmt.Sprintf("%d", *n.Fid)
+	p := acfg.DataDir + "/" + fmt.Sprintf("%d", *n.Fid)
 	data, _ := os.ReadFile(p)
 	return data
 }

@@ -6,18 +6,6 @@ import (
 	_ "image/gif"
 	_ "image/png"
 	"net/http"
-	"os"
-	"path/filepath"
-
-	"github.com/glebarez/sqlite"
-	"gorm.io/gorm"
-)
-
-const (
-	dataDir     = "./data"
-	thumbDir    = "./thumbnails"
-	dbFile      = "./database.db"
-	programName = "HaNas"
 )
 
 //go:embed index.html
@@ -35,15 +23,13 @@ var favicon []byte
 //go:embed assets/apple-touch-icon.png
 var appleTouchIcon []byte
 
+//go:embed assets/config.js
+var configJS string
+
 func main() {
-	var err error
-	db, err = gorm.Open(sqlite.Open(dbFile), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	db.AutoMigrate(&Config{}, &User{}, &Node{}, &Share{}, &Trash{})
-	if err := initJWTSecret(); err != nil {
-		panic(err)
+	config_js := Init()
+	if config_js == "" {
+		return
 	}
 	go gomikago_akeru()
 	http.HandleFunc("/register", Register)
@@ -88,20 +74,14 @@ func main() {
 	})
 	http.HandleFunc("/config.js", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/javascript")
-		exePath, err := os.Executable()
-		if err != nil {
-			http.Error(w, "internal error", http.StatusInternalServerError)
-			return
-		}
-		dir := filepath.Dir(exePath)
-		configPath := filepath.Join(dir, "config.js")
-		data, err := os.ReadFile(configPath)
-		if err != nil {
-			http.Error(w, "config.js not found", http.StatusNotFound)
-			return
-		}
-		w.Write(data)
+		w.Write([]byte(config_js))
 	})
-	fmt.Printf("%s server started at :80\n", programName)
+	if acfg.Https_f {
+		go func() {
+			fmt.Printf("%s server started at :8443\n", "HaNas")
+			http.ListenAndServeTLS(":8443", acfg.Cert, acfg.Key, nil)
+		}()
+	}
+	fmt.Printf("%s server started at :80\n", "HaNas")
 	http.ListenAndServe(":80", nil)
 }

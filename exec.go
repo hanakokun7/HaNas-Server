@@ -72,7 +72,7 @@ func return_root(userID uint) Node {
 }
 
 func UploadFile(reader io.Reader) (uint, error) {
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
+	if err := os.MkdirAll(acfg.DataDir, 0755); err != nil {
 		return 0, fmt.Errorf("cannot create data dir: %w", err)
 	}
 	uploadMutex.Lock()
@@ -80,7 +80,7 @@ func UploadFile(reader io.Reader) (uint, error) {
 	var filename uint
 	for {
 		filename = uint(r.Intn(100000000))
-		filepath := fmt.Sprintf("%s/%d", dataDir, filename)
+		filepath := fmt.Sprintf("%s/%d", acfg.DataDir, filename)
 		file, err := os.OpenFile(filepath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
 		if err != nil {
 			if os.IsExist(err) {
@@ -185,7 +185,7 @@ func UpdateNode(fid *uint, reader io.Reader) bool {
 	fileLocks.Unlock()
 	lock.Lock()
 	defer lock.Unlock()
-	filepath := fmt.Sprintf("%s/%d", dataDir, *fid)
+	filepath := fmt.Sprintf("%s/%d", acfg.DataDir, *fid)
 	tmpPath := filepath + ".tmp"
 	file, err := os.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -276,9 +276,9 @@ func DeleteNodeRecursive(id uint, userID uint) error {
 		_ = DeleteNodeRecursive(c.ID, userID)
 	}
 	if n.Fid != nil {
-		p := fmt.Sprintf("%s/%d", dataDir, *n.Fid)
+		p := fmt.Sprintf("%s/%d", acfg.DataDir, *n.Fid)
 		_ = os.Remove(p)
-		thumbPath := fmt.Sprintf("%s/%d.jpg", thumbDir, *n.Fid)
+		thumbPath := fmt.Sprintf("%s/%d.jpg", acfg.ThumbDir, *n.Fid)
 		_ = os.Remove(thumbPath)
 	}
 	result := db.Delete(&n)
@@ -313,7 +313,7 @@ func calculateDirSize(nodeID uint, userID uint) int64 {
 		if child.IsDir {
 			totalSize += calculateDirSize(child.ID, userID)
 		} else if child.Fid != nil {
-			p := fmt.Sprintf("%s/%d", dataDir, *child.Fid)
+			p := fmt.Sprintf("%s/%d", acfg.DataDir, *child.Fid)
 			if st, err := os.Stat(p); err == nil {
 				totalSize += st.Size()
 			}

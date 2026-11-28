@@ -31,7 +31,7 @@ func checkPasswordHash(password, hash string) bool {
 
 func initJWTSecret() error {
 	var config Config
-	if err := db.First(&config, "key = ?", "jwt_secret").Error; err != nil {
+	if err := db.First(&config, "`key` = ?", "jwt_secret").Error; err != nil {
 		b := make([]byte, 32)
 		for i := range b {
 			b[i] = byte(mrand.Intn(256))

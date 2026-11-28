@@ -27,13 +27,13 @@ var (
 
 type Config struct {
 	ID    uint   `gorm:"primaryKey;autoIncrement" json:"id"`
-	Key   string `gorm:"uniqueIndex;not null" json:"key"`
+	Key   string `gorm:"uniqueIndex;type:varchar(50);not null" json:"key"`
 	Value string `gorm:"not null" json:"value"`
 }
 
 type User struct {
 	ID        uint      `gorm:"primaryKey;autoIncrement" json:"id"`
-	Username  string    `gorm:"uniqueIndex;not null" json:"username"`
+	Username  string    `gorm:"uniqueIndex;type:varchar(50);not null" json:"username"`
 	Password  string    `gorm:"not null" json:"-"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 }
@@ -46,7 +46,7 @@ type Claims struct {
 
 type Share struct {
 	ID        uint       `gorm:"primaryKey;autoIncrement" json:"id"`
-	Token     string     `gorm:"uniqueIndex;not null" json:"token"`
+	Token     string     `gorm:"uniqueIndex;type:varchar(50);not null" json:"token"`
 	NodeID    uint       `gorm:"not null;index" json:"node_id"`
 	UserID    uint       `gorm:"not null;index" json:"user_id"`
 	CreatedAt time.Time  `gorm:"autoCreateTime" json:"created_at"`
